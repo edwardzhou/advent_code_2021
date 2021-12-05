@@ -26,6 +26,9 @@ defmodule Day02.PartOneTest do
   end
 
   test "execute should return 150 for @commands" do
-    assert PartOne.execute(@commands) == 150
+    actual = @commands
+      |> Day02.parse_commands()
+      |> PartOne.execute()
+    assert actual == 150
   end
 end

@@ -40,7 +40,7 @@ defmodule Day03 do
 
   def to_bit_list(line) do
     line
-    |> String.split("", trim: true)
+    |> String.graphemes()
     |> Enum.map(&String.to_integer/1)
   end
 
@@ -50,7 +50,9 @@ defmodule Day03 do
     |> Enum.map(&to_bit_list/1)
   end
 
-  def diag(input) do
+  def calculate(%{gamma: gamma, epsilon: epsilon}), do: gamma * epsilon
+
+  def power_consumption(input) do
     input
     |> parse_bits()
     |> sum_bits()
@@ -58,85 +60,69 @@ defmodule Day03 do
     |> calculate()
   end
 
+  #------ part two ---------------
+
   def filter_for(bit_lines, :oxygen, bit_index) do
     {bit_sum, count} = sum_bits(bit_lines)
-    bit_1_count = Enum.at(bit_sum, bit_index)
-
-    bit_to_keep = case bit_1_count >= count - bit_1_count do
-      true -> 1
-      _ -> 0
-    end
+    one_count = Enum.at(bit_sum, bit_index)
+    bit_to_keep = if one_count >= count - one_count, do: 1, else: 0
 
     bit_lines
-    |> Enum.filter(fn line -> Enum.at(line, bit_index) == bit_to_keep end)
+    |> Enum.filter(& Enum.at(&1, bit_index) == bit_to_keep )
   end
 
   def filter_for(bit_lines, :co2, bit_index) do
     {bit_sum, count} = sum_bits(bit_lines)
-
-    bit_1_count = Enum.at(bit_sum, bit_index)
-
-    bit_to_keep = case bit_1_count >= count - bit_1_count  do
-      true -> 0
-      _ -> 1
-    end
+    one_count = Enum.at(bit_sum, bit_index)
+    bit_to_keep = if one_count >= count - one_count, do: 0, else: 1
 
     bit_lines
     |> Enum.filter(fn line -> Enum.at(line, bit_index) == bit_to_keep end)
   end
 
+  def find_oxygen_rate(lines, bit_index \\ 0)
 
   def find_oxygen_rate([line1, line2], bit_index) do
-    if Enum.at(line1, bit_index) == 1 do
-      line1
-    else
-      line2
-    end
+    if Enum.at(line1, bit_index) == 1, do: line1, else: line2
   end
 
   def find_oxygen_rate(bit_lines, bit_index) do
     bits = bit_lines |> List.first |> Enum.count()
-    bit_index = rem(bit_index, bits)
 
     filter_for(bit_lines, :oxygen, bit_index)
     |> find_oxygen_rate(bit_index + 1)
   end
 
+  def find_co2_rate(lines, bit_index \\ 0)
+
   def find_co2_rate([line1, line2], bit_index) do
-    if Enum.at(line1, bit_index) == 0 do
-      line1
-    else
-      line2
-    end
+    if Enum.at(line1, bit_index) == 0, do: line1, else: line2
   end
 
   def find_co2_rate(bit_lines, bit_index) do
     bits = bit_lines |> List.first |> Enum.count()
-    bit_index = rem(bit_index, bits)
 
     filter_for(bit_lines, :co2, bit_index)
     |> find_co2_rate(bit_index + 1)
   end
 
-  def calculate(%{gamma: gamma, epsilon: epsilon}), do: gamma * epsilon
-
-  def diag_oxygen_co2(input) do
+  def life_support_rating(input) do
     bit_lines =
       input |> parse_bits()
 
-    oxygen_rate = find_oxygen_rate(bit_lines, 0) |> bits_to_integer()
-    co2_rate = find_co2_rate(bit_lines, 0) |> bits_to_integer()
+    oxygen_rate = find_oxygen_rate(bit_lines) |> bits_to_integer()
+    co2_rate = find_co2_rate(bit_lines) |> bits_to_integer()
 
     oxygen_rate * co2_rate
   end
 
   def resolve(:part_one) do
     File.read!("./puzzle_input.txt")
-    |> diag()
+    |> power_consumption()
   end
 
   def resolve(:part_two) do
     File.read!("./puzzle_input.txt")
-    |> diag_oxygen_co2()
+    |> life_support_rating()
   end
 end

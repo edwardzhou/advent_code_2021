@@ -40,7 +40,7 @@ defmodule Day03Test do
   end
 
   test "#diag should returns 198" do
-    assert Day03.diag(@bits) == 198
+    assert Day03.power_consumption(@bits) == 198
   end
 
   test "#filter_for should returns 2 rows" do
@@ -83,7 +83,7 @@ defmodule Day03Test do
   end
 
   test "#diag_oxygen_co2 should return 230" do
-    assert Day03.diag_oxygen_co2(@bits) == 230
+    assert Day03.life_support_rating(@bits) == 230
   end
 
 end
